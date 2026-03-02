@@ -84,7 +84,7 @@ const App = () => {
         `Remove blog ${blogToRemove.title} by ${blogToRemove.author}`,
       )
     ) {
-      blogService.remove(blogToRemove.id).then((response) => {
+      blogService.remove(blogToRemove.id).then(() => {
         setBlogs(blogs.filter((blog) => blog.id !== blogToRemove.id));
       });
 
