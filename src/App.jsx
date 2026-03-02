@@ -10,9 +10,6 @@ import loginService from "./services/login";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  /* const [title, newTitle] = useState("");
-  const [author, newAuthor] = useState("");
-  const [url, newUrl] = useState(""); */
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
@@ -37,21 +34,6 @@ const App = () => {
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility();
 
-    /* const blogObject = {
-      title: title,
-      author: author,
-      url: url,
-    };
-
-    if (!blogObject.title || !blogObject.author || !blogObject.url) {
-      setErrorMessage("Fill every field");
-
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 2500);
-      return null;
-    } */
-
     if (!blogObject.title || !blogObject.author || !blogObject.url) {
       setErrorMessage("Fill every field");
 
@@ -71,43 +53,8 @@ const App = () => {
       setTimeout(() => {
         setNotification(null);
       }, 5000);
-
-      /* newTitle("");
-      newAuthor("");
-      newUrl(""); */
     });
   };
-
-  /* const handleTitleChange = (event) => {
-    newTitle(event.target.value);
-  };
-
-  const handleAuthorChange = (event) => {
-    newAuthor(event.target.value);
-  };
-
-  const handleUrlChange = (event) => {
-    newUrl(event.target.value);
-  };
-
-  const blogForm = () => (
-    <form onSubmit={addBlog}>
-      <div>
-        <p>
-          title:
-          <input value={title} onChange={handleTitleChange}></input>
-        </p>
-        <p>
-          author:
-          <input value={author} onChange={handleAuthorChange}></input>
-        </p>
-        <p>
-          url: <input value={url} onChange={handleUrlChange}></input>
-        </p>
-        <button type="submit">create</button>
-      </div>
-    </form>
-  ); */
 
   const handleLogin = async (event) => {
     event.preventDefault();
