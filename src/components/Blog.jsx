@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Blog = ({ blog, updateBlog }) => {
+const Blog = ({ blog, updateBlog, removeBlog, user }) => {
   const [expand, setExpansion] = useState(false);
 
   const blogStyle = {
@@ -13,6 +13,10 @@ const Blog = ({ blog, updateBlog }) => {
 
   const showWhenVisible = { display: expand ? "none" : "" };
   const hideWhenVisible = { display: expand ? "" : "none" };
+
+  if (!blog) {
+    return null;
+  }
 
   return (
     <div style={blogStyle}>
@@ -28,6 +32,9 @@ const Blog = ({ blog, updateBlog }) => {
           {blog.likes} <button onClick={() => updateBlog(blog)}>like</button>
         </div>
         <div>{blog.author}</div>
+        {user.username === blog.user.username ? (
+          <button onClick={() => removeBlog(blog)}>remove</button>
+        ) : null}
       </div>
     </div>
   );
