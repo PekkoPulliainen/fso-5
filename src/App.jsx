@@ -56,6 +56,22 @@ const App = () => {
     });
   };
 
+  const updateBlog = (blog) => {
+    blogService
+      .update(blog.id, {
+        title: blog.title,
+        author: blog.author,
+        url: blog.url,
+        likes: blog.likes + 1,
+        user: blog.user._id,
+      })
+      .then((response) => {
+        setBlogs(
+          blogs.map((blog) => (blog.id === response.id ? response : blog)),
+        );
+      });
+  };
+
   const handleLogin = async (event) => {
     event.preventDefault();
 
@@ -114,7 +130,7 @@ const App = () => {
       {user && (
         <div>
           {blogs.map((blog) => (
-            <Blog key={blog.id} blog={blog} />
+            <Blog key={blog.id} blog={blog} updateBlog={updateBlog} />
           ))}
         </div>
       )}
