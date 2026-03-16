@@ -1,22 +1,23 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import Blog from "./Blog";
-import { beforeEach, expect } from "vitest";
 
 describe("<Blog />", () => {
   const blog = {
     title: "testing",
     author: "tester",
     url: "test.com",
+    likes: 5,
     user: {
-      username: "fake",
-      name: "fake fakerson",
+      username: "testaava",
+      name: "testi testaaja",
       blogs: [],
     },
   };
 
   const user = {
-    username: "testigner",
-    name: "test testerson",
+    username: "testaava",
+    name: "testi testaaja",
     blogs: [],
   };
 
@@ -42,11 +43,38 @@ describe("<Blog />", () => {
 
   test("does not show likes", () => {
     const div = container.querySelector(".visible");
-    expect(div).not.toHaveTextContent("test.com");
+    expect(div).not.toHaveTextContent("5");
   });
 
   test("does not show hidden section", () => {
     const div = container.querySelector(".hidden");
     expect(div).toHaveStyle("display: none;");
+  });
+
+  test("clicking the view button shows more information", async () => {
+    const mockUser = userEvent.setup();
+    const button = screen.getByText("expand");
+    await mockUser.click(button);
+
+    const div = container.querySelector(".hidden");
+    expect(div).not.toHaveStyle("display: none");
+  });
+
+  test("clicking the view button shows the url", async () => {
+    const mockUser = userEvent.setup();
+    const button = screen.getByText("expand");
+    await mockUser.click(button);
+
+    const div = container.querySelector(".hidden");
+    expect(div).toHaveTextContent("test.com");
+  });
+
+  test("clicking the view button shows the likes", async () => {
+    const mockUser = userEvent.setup();
+    const button = screen.getByText("expand");
+    await mockUser.click(button);
+
+    const div = container.querySelector(".hidden");
+    expect(div).toHaveTextContent("5");
   });
 });
