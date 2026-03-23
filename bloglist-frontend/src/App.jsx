@@ -35,7 +35,7 @@ const App = () => {
     }
   }, []);
 
-  const addBlog = (blogObject) => {
+  const createBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility();
 
     if (!blogObject.title || !blogObject.author || !blogObject.url) {
@@ -127,51 +127,44 @@ const App = () => {
   };
 
   const loginForm = () => (
-    <Togglable buttonLabel="login">
-      <LoginForm
-        username={username}
-        password={password}
-        handleUsernameChange={({ target }) => setUsername(target.value)}
-        handlePasswordChange={({ target }) => setPassword(target.value)}
-        handleSubmit={handleLogin}
-      />
-    </Togglable>
-  );
-
-  return (
-    <div>
+    <>
+      <h1 data-testid="login-header">Login</h1>
       <Notification message={notification} />
       <ErrorMessage message={errorMessage} />
+      <LoginForm
+        handleLogin={handleLogin}
+        setUsername={setUsername}
+        setPassword={setPassword}
+        username={username}
+        password={password}
+      />
+    </>
+  );
 
-      {!user && loginForm()}
-
-      {user && (
-        <div>
-          <h2>Blogs</h2>
-          <p>
-            {user.name} logged in<button onClick={handleLogOut}>logout</button>
-          </p>
-          <Togglable buttonLabel="create a new blog" ref={blogFormRef}>
-            <BlogForm createBlog={addBlog} />
-          </Togglable>
-        </div>
-      )}
-
-      {user && (
-        <div>
-          {blogs.map((blog) => (
-            <Blog
-              key={blog.id}
-              blog={blog}
-              updateBlog={updateBlog}
-              removeBlog={removeBlog}
-              user={user}
-            />
-          ))}
-        </div>
-      )}
+  const blogForm = (user) => (
+    <div>
+      <h1>blogs</h1>
+      <Notification message={notification} />
+      <ErrorMessage message={errorMessage} />
+      <p>
+        {user.name} logged in <button onClick={handleLogOut}>logout</button>
+      </p>
+      <Togglable buttonLabel={"new blog"} ref={blogFormRef}>
+        <BlogForm createBlog={createBlog} />
+      </Togglable>
+      {blogs.map((blog) => (
+        <Blog
+          key={blog.id}
+          blog={blog}
+          updateBlog={updateBlog}
+          removeBlog={removeBlog}
+          user={user}
+        />
+      ))}
     </div>
   );
+
+  return <div>{user === null ? loginForm() : blogForm(user)}</div>;
 };
 
 export default App;
