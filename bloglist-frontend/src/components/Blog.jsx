@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const Blog = ({ blog, updateBlog, removeBlog, user }) => {
-  const [expand, setExpansion] = useState(false);
+  const [view, setExpansion] = useState(false);
 
   const blogStyle = {
     paddingTop: 10,
@@ -11,8 +11,8 @@ const Blog = ({ blog, updateBlog, removeBlog, user }) => {
     marginBottom: 5,
   };
 
-  const showWhenVisible = { display: expand ? "none" : "" };
-  const hideWhenVisible = { display: expand ? "" : "none" };
+  const showWhenVisible = { display: view ? "none" : "" };
+  const hideWhenVisible = { display: view ? "" : "none" };
 
   if (!blog) {
     return null;
@@ -22,17 +22,17 @@ const Blog = ({ blog, updateBlog, removeBlog, user }) => {
     <div style={blogStyle} className="blog">
       <div style={showWhenVisible} className="visible">
         {blog.title} {blog.author}{" "}
-        <button onClick={() => setExpansion(!expand)}>expand</button>
+        <button onClick={() => setExpansion(!view)}>view</button>
       </div>
       <div style={hideWhenVisible} className="hidden">
         {blog.title} {blog.author}{" "}
-        <button onClick={() => setExpansion(!expand)}>hide</button>
+        <button onClick={() => setExpansion(!view)}>hide</button>
         <div>{blog.url}</div>
         <div data-testid="likes">
           {blog.likes} <button onClick={() => updateBlog(blog)}>like</button>
         </div>
-        <div>{blog.user.name}</div>
-        {user.username === blog.user.username ? (
+        <div>{blog.user ? blog.user.name : "unknown"}</div>
+        {blog.user && user.username === blog.user.username ? (
           <button onClick={() => removeBlog(blog)}>remove</button>
         ) : null}
       </div>

@@ -11,6 +11,13 @@ describe("Blog app", () => {
         password: "sala",
       },
     });
+    await request.post("/api/users", {
+      data: {
+        name: "Rando",
+        username: "Rando123",
+        password: "secret",
+      },
+    });
 
     await page.goto("/");
   });
@@ -28,7 +35,7 @@ describe("Blog app", () => {
     });
 
     test("fails with wrong credentials", async ({ page }) => {
-      await loginWith(page, "TestiTestaaja", "wrongest");
+      await loginWith(page, "TestiTestaaja", "wrong");
 
       const errorDiv = await page.locator(".error");
       await expect(errorDiv).toContainText("Wrong credentials");
@@ -46,39 +53,59 @@ describe("Blog app", () => {
     test("a new blog can be created", async ({ page }) => {
       await createBlog(
         page,
-        "new blog by playwright",
+        "test blog by playwright",
         "greenhorn",
         "newbie.com",
       );
-      // Use a unique test id for the blog entry
-      const blogDiv = page.getByTestId("blog-entry");
-      await expect(blogDiv).toContainText("new blog by playwright");
+      const blogDiv = page.locator(".blog").last();
+      await expect(blogDiv).toContainText("test blog by playwright");
     });
 
     describe("there is a blog", () => {
-      beforeEach(async ({ page }) => {
+      beforeEach(async ({ page, request }) => {
         await createBlog(
           page,
-          "new blog by playwright",
+          "test blog by playwright",
           "greenhorn",
           "newbie.com",
         );
       });
 
       test("a blog can be liked", async ({ page }) => {
-        await page.getByRole("button", { name: "expand" }).click();
+        await page.getByRole("button", { name: "view" }).click();
         await page.getByRole("button", { name: "like" }).click();
 
         await expect(page.getByTestId("likes")).toHaveText("1 like");
       });
 
       test("a blog can be deleted by the creator", async ({ page }) => {
-        await page.getByRole("button", { name: "expand" }).click();
+        await page.getByRole("button", { name: "view" }).click();
         page.on("dialog", async (dialog) => await dialog.accept());
         await page.getByRole("button", { name: "remove" }).click();
 
         const blogDiv = page.locator(".blog");
         await expect(blogDiv).not.toBeVisible();
+      });
+
+      test("only the creator of the blog can see the delete button", async ({
+        page,
+      }) => {
+        await page.getByRole("button", { name: "logout" }).click();
+        await loginWith(page, "Rando123", "secret");
+
+        await page.getByRole("button", { name: "view" }).click();
+        await expect(
+          page.getByRole("button", { name: "remove" }),
+        ).not.toBeVisible();
+      });
+
+      test("blogs are arranged based on likes", async ({ page }) => {
+        await createBlog(page, "most likes", "Mr. Like", "like.com");
+        const blogDiv = page.locator(".blog").last();
+        await blogDiv.getByRole("button", { name: "view" }).click();
+        await blogDiv.getByRole("button", { name: "like" }).click();
+        const mostLikesBlog = page.locator(".blog").first();
+        await expect(mostLikesBlog).toContainText("most likes");
       });
     });
   });

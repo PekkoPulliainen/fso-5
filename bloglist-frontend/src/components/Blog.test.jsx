@@ -56,7 +56,7 @@ describe("<Blog />", () => {
 
   test("clicking the view button shows more information", async () => {
     const mockUser = userEvent.setup();
-    const button = screen.getByText("expand");
+    const button = screen.getByText("view");
     await mockUser.click(button);
 
     const div = container.querySelector(".hidden");
@@ -65,7 +65,7 @@ describe("<Blog />", () => {
 
   test("clicking the view button shows the url", async () => {
     const mockUser = userEvent.setup();
-    const button = screen.getByText("expand");
+    const button = screen.getByText("view");
     await mockUser.click(button);
 
     const div = container.querySelector(".hidden");
@@ -74,7 +74,7 @@ describe("<Blog />", () => {
 
   test("clicking the view button shows the likes", async () => {
     const mockUser = userEvent.setup();
-    const button = screen.getByText("expand");
+    const button = screen.getByText("view");
     await mockUser.click(button);
 
     const div = container.querySelector(".hidden");
@@ -83,7 +83,7 @@ describe("<Blog />", () => {
 
   test("pressing like twice call the handler twice", async () => {
     const mockUser = userEvent.setup();
-    const button = screen.getByText("expand");
+    const button = screen.getByText("view");
     await mockUser.click(button);
 
     const likeButton = screen.getByText("like");
