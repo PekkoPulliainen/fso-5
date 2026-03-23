@@ -13,7 +13,11 @@ const ErrorMessage = ({ message }) => {
     return null;
   }
 
-  return <div style={errorStyle}>{message}</div>;
+  return (
+    <div style={errorStyle} className="error">
+      {message}
+    </div>
+  );
 };
 
 export default ErrorMessage;
