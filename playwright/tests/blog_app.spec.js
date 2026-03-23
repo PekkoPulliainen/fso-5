@@ -1,4 +1,5 @@
 const { test, expect, beforeEach, describe } = require("@playwright/test");
+const { loginWith, createBlog } = require("./helper");
 
 describe("Blog app", () => {
   beforeEach(async ({ page, request }) => {
@@ -21,21 +22,13 @@ describe("Blog app", () => {
 
   describe("Login", () => {
     test("succeeds with correct credentials", async ({ page }) => {
-      await page.getByRole("button", { name: "login" }).click();
-      await page.getByTestId("username").fill("TestiTestaaja");
-      await page.getByTestId("password").fill("sala");
-
-      await page.getByRole("button", { name: "login" }).click();
+      await loginWith(page, "TestiTestaaja", "sala");
 
       await expect(page.getByText("Testaaja logged in")).toBeVisible();
     });
 
     test("fails with wrong credentials", async ({ page }) => {
-      await page.getByRole("button", { name: "login" }).click();
-      await page.getByTestId("username").fill("TestiTestaaja");
-      await page.getByTestId("password").fill("wrongest");
-
-      await page.getByRole("button", { name: "login" }).click();
+      await loginWith(page, "TestiTestaaja", "wrongest");
 
       const errorDiv = await page.locator(".error");
       await expect(errorDiv).toContainText("Wrong credentials");
@@ -43,6 +36,24 @@ describe("Blog app", () => {
       await expect(errorDiv).toHaveCSS("color", "rgb(255, 0, 0)");
 
       await expect(page.getByText("Testaaja logged in")).not.toBeVisible();
+    });
+  });
+
+  describe("When logged in", () => {
+    beforeEach(async ({ page }) => {
+      await loginWith(page, "TestiTestaaja", "sala");
+    });
+
+    test("a new blog can be created", async ({ page }) => {
+      await createBlog(
+        page,
+        "new blog by playwright",
+        "greenhorn",
+        "newbie.com",
+      );
+      await expect(
+        page.getByText("a new blog new blog by playwright by greenhorn added"),
+      ).toBeVisible();
     });
   });
 });
