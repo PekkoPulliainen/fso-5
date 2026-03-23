@@ -47,13 +47,26 @@ describe("Blog app", () => {
     test("a new blog can be created", async ({ page }) => {
       await createBlog(
         page,
-        "new blog by playwright",
+        "test blog by playwright",
         "greenhorn",
         "newbie.com",
       );
       await expect(
-        page.getByText("a new blog new blog by playwright by greenhorn added"),
+        page.getByText("new blog by playwright by greenhorn added"),
       ).toBeVisible();
+    });
+
+    test("a blog can be liked", async ({ page }) => {
+      await createBlog(
+        page,
+        "new blog by playwright",
+        "greenhorn",
+        "newbie.com",
+      );
+      await page.getByRole("button", { name: "expand" }).last().click();
+      await page.getByRole("button", { name: "like" }).last().click();
+
+      await expect(page.getByTestId("likes").last()).toHaveText("0 like");
     });
   });
 });

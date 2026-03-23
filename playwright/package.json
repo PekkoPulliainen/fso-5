@@ -7,7 +7,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test",
+    "test": "playwright test --project chromium --ui",
     "test:report": "playwright show-report"
   },
   "devDependencies": {

@@ -28,7 +28,7 @@ const Blog = ({ blog, updateBlog, removeBlog, user }) => {
         {blog.title} {blog.author}{" "}
         <button onClick={() => setExpansion(!expand)}>hide</button>
         <div>{blog.url}</div>
-        <div>
+        <div data-testid="likes">
           {blog.likes} <button onClick={() => updateBlog(blog)}>like</button>
         </div>
         <div>{blog.user.name}</div>
