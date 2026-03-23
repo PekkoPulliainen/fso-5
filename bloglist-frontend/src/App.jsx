@@ -50,9 +50,7 @@ const App = () => {
     blogService.create(blogObject).then((returnedBlog) => {
       setBlogs(blogs.concat(returnedBlog));
 
-      setNotification(
-        `a new blog ${blogObject.title} by ${blogObject.author} added`,
-      );
+      setNotification(`${blogObject.title} ${blogObject.author}`);
 
       setTimeout(() => {
         setNotification(null);

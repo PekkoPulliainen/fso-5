@@ -3,8 +3,8 @@ const { loginWith, createBlog } = require("./helper");
 
 describe("Blog app", () => {
   beforeEach(async ({ page, request }) => {
-    await request.post("http://localhost:3001/api/testing/reset");
-    await request.post("http://localhost:3001/api/users", {
+    await request.post("/api/testing/reset");
+    await request.post("/api/users", {
       data: {
         name: "Testaaja",
         username: "TestiTestaaja",
@@ -12,7 +12,7 @@ describe("Blog app", () => {
       },
     });
 
-    await page.goto("http://localhost:5173/");
+    await page.goto("/");
   });
 
   test("Login form is shown", async ({ page }) => {
@@ -38,7 +38,6 @@ describe("Blog app", () => {
       await expect(page.getByText("Testaaja logged in")).not.toBeVisible();
     });
   });
-
   describe("When logged in", () => {
     beforeEach(async ({ page }) => {
       await loginWith(page, "TestiTestaaja", "sala");
@@ -47,26 +46,40 @@ describe("Blog app", () => {
     test("a new blog can be created", async ({ page }) => {
       await createBlog(
         page,
-        "test blog by playwright",
-        "greenhorn",
-        "newbie.com",
-      );
-      await expect(
-        page.getByText("new blog by playwright by greenhorn added"),
-      ).toBeVisible();
-    });
-
-    test("a blog can be liked", async ({ page }) => {
-      await createBlog(
-        page,
         "new blog by playwright",
         "greenhorn",
         "newbie.com",
       );
-      await page.getByRole("button", { name: "expand" }).last().click();
-      await page.getByRole("button", { name: "like" }).last().click();
+      // Use a unique test id for the blog entry
+      const blogDiv = page.getByTestId("blog-entry");
+      await expect(blogDiv).toContainText("new blog by playwright");
+    });
 
-      await expect(page.getByTestId("likes").last()).toHaveText("0 like");
+    describe("there is a blog", () => {
+      beforeEach(async ({ page }) => {
+        await createBlog(
+          page,
+          "new blog by playwright",
+          "greenhorn",
+          "newbie.com",
+        );
+      });
+
+      test("a blog can be liked", async ({ page }) => {
+        await page.getByRole("button", { name: "expand" }).click();
+        await page.getByRole("button", { name: "like" }).click();
+
+        await expect(page.getByTestId("likes")).toHaveText("1 like");
+      });
+
+      test("a blog can be deleted by the creator", async ({ page }) => {
+        await page.getByRole("button", { name: "expand" }).click();
+        page.on("dialog", async (dialog) => await dialog.accept());
+        await page.getByRole("button", { name: "remove" }).click();
+
+        const blogDiv = page.locator(".blog");
+        await expect(blogDiv).not.toBeVisible();
+      });
     });
   });
 });
