@@ -40,4 +40,5 @@ LoginForm.propTypes = {
   username: PropTypes.string.isRequired,
   password: PropTypes.string.isRequired,
 };
+
 export default LoginForm;

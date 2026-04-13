@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Notification from "./components/Notification";
 import ErrorMessage from "./components/ErrorMessage";
 import BlogForm from "./components/BlogForm";
@@ -7,24 +7,26 @@ import Blog from "./components/Blog";
 import Togglable from "./components/Togglable";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
+import BlogList from "./components/BlogList";
+
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useMatch,
+  useLocation,
+} from "react-router-dom";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
+  const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
   const [notification, setNotification] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  const blogFormRef = useRef();
-
-  useEffect(() => {
-    blogService
-      .getAll()
-      .then((initialBlogs) =>
-        setBlogs(initialBlogs.sort((a, b) => b.likes - a.likes)),
-      );
-  }, []);
+  /* const blogFormRef = useRef(); */
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
@@ -35,15 +37,33 @@ const App = () => {
     }
   }, []);
 
+  useEffect(() => {
+    blogService.getAll().then((initialBlogs) =>
+      setBlogs(
+        initialBlogs
+          .map((blog) => ({
+            ...blog,
+            user:
+              typeof blog.user === "object" && blog.user !== null
+                ? blog.user
+                : { username: "unknown", name: "unknown" },
+          }))
+          .sort((a, b) => b.likes - a.likes),
+      ),
+    );
+  }, []);
+
+  console.log("user: ", user);
+
   const createBlog = (blogObject) => {
-    blogFormRef.current.toggleVisibility();
+    /* blogFormRef.current.toggleVisibility(); */
 
     if (!blogObject.title || !blogObject.author || !blogObject.url) {
       setErrorMessage("Fill every field");
 
       setTimeout(() => {
         setErrorMessage(null);
-      }, 5000);
+      }, 2000);
       return null;
     }
 
@@ -54,7 +74,7 @@ const App = () => {
 
       setTimeout(() => {
         setNotification(null);
-      }, 5000);
+      }, 2000);
     });
   };
 
@@ -94,7 +114,7 @@ const App = () => {
 
       setTimeout(() => {
         setNotification("");
-      }, 5000);
+      }, 2000);
     } else {
       return null;
     }
@@ -115,7 +135,7 @@ const App = () => {
       setErrorMessage("Wrong credentials");
       setTimeout(() => {
         setErrorMessage(null);
-      }, 5000);
+      }, 2000);
     }
   };
 
@@ -124,45 +144,97 @@ const App = () => {
     window.location.reload();
   };
 
-  const loginForm = () => (
-    <>
-      <h1 data-testid="login-header">Login</h1>
-      <Notification message={notification} />
-      <ErrorMessage message={errorMessage} />
-      <LoginForm
-        handleLogin={handleLogin}
-        setUsername={setUsername}
-        setPassword={setPassword}
-        username={username}
-        password={password}
-      />
-    </>
-  );
+  const padding = {
+    padding: 5,
+  };
 
-  const blogForm = (user) => (
+  const match = useMatch("/blogs/:id");
+
+  const blog = match ? blogs.find((blog) => blog.id === match.params.id) : null;
+
+  console.log(blog);
+
+  const location = useLocation();
+
+  return (
     <div>
-      <h1>blogs</h1>
-      <Notification message={notification} />
-      <ErrorMessage message={errorMessage} />
-      <p>
-        {user.name} logged in <button onClick={handleLogOut}>logout</button>
-      </p>
-      <Togglable buttonLabel={"new blog"} ref={blogFormRef}>
-        <BlogForm createBlog={createBlog} />
-      </Togglable>
-      {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          updateBlog={updateBlog}
-          removeBlog={removeBlog}
-          user={user}
-        />
-      ))}
+      <div>
+        {user ? (
+          <>
+            {location.pathname !== "/blogs" && (
+              <Link style={padding} to="/blogs">
+                blogs
+              </Link>
+            )}
+            {location.pathname !== "/create" && (
+              <Link style={padding} to="/create">
+                new blog
+              </Link>
+            )}
+            <p>
+              {user.name} logged in{" "}
+              <button onClick={handleLogOut}>logout</button>
+            </p>
+          </>
+        ) : (
+          location.pathname !== "/login" && (
+            <Link style={padding} to="/login">
+              login
+            </Link>
+          )
+        )}
+      </div>
+
+      <Routes>
+        {user && (
+          <Route
+            path="/blogs"
+            element={
+              <>
+                <Notification message={notification} />
+                <ErrorMessage message={errorMessage} />
+                <BlogList
+                  blogs={blogs}
+                  updateBlog={updateBlog}
+                  removeBlog={removeBlog}
+                />
+              </>
+            }
+          />
+        )}
+        {user && (
+          <Route
+            path="/create"
+            element={
+              <>
+                <Notification message={notification} />
+                <ErrorMessage message={errorMessage} />
+                <BlogForm createBlog={createBlog} />
+              </>
+            }
+          />
+        )}
+        {!user && (
+          <Route
+            path="/login"
+            element={
+              <>
+                <Notification message={notification} />
+                <ErrorMessage message={errorMessage} />
+                <LoginForm
+                  handleLogin={handleLogin}
+                  setUsername={setUsername}
+                  setPassword={setPassword}
+                  username={username}
+                  password={password}
+                />
+              </>
+            }
+          />
+        )}
+      </Routes>
     </div>
   );
-
-  return <div>{user === null ? loginForm() : blogForm(user)}</div>;
 };
 
 export default App;
